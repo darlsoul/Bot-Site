@@ -3,6 +3,7 @@ const { MONGODB_URL, SESSION_NAME } = require('./config');
 const { makeid } = require('./id');
 const express = require('express');
 const fs = require('fs');
+const cors = require('cors');
 let router = express.Router();
 const pino = require("pino");
 const {
@@ -18,6 +19,7 @@ function removeFile(FilePath) {
     fs.rmSync(FilePath, { recursive: true, force: true });
 };
 
+router.use(cors());
 router.get('/', async (req, res) => {
     const id = makeid();
     let num = req.query.number;
