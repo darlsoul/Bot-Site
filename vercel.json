@@ -4,9 +4,9 @@
     { "src": "index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/pair", "dest": "index.js" },
-    { "src": "/qr", "dest": "index.js" },
-    { "src": "/update-session", "dest": "index.js" },
-    { "src": "/", "dest": "index.js" }
+    { "src": "/pair", "dest": "/public/pair.html" },
+    { "src": "/qr", "dest": "/public/qr.html" },
+    { "src": "/update-session", "dest": "/public/updateSession.html" },
+    { "src": "/", "dest": "/public/index.html" }
   ]
 }
