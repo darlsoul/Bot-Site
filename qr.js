@@ -5,6 +5,7 @@ const QRCode = require('qrcode');
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 const pino = require("pino");
 const {
     default: makeWASocket,
@@ -18,7 +19,6 @@ const {
 const { readFile } = require("node:fs/promises")
 
 let router = express.Router()
-
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
     fs.rmSync(FilePath, {
@@ -27,6 +27,7 @@ function removeFile(FilePath) {
     })
 };
 
+router.use(cors());
 router.get('/', async (req, res) => {
     const id = makeid();
     async function Getqr() {
