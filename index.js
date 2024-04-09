@@ -11,26 +11,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__path, 'public')));
 
-app.get('/pair', (req, res) => {
-    res.sendFile(path.join(__path, '/public/pair.html'));
-});
+let qrCode = require('./qr.js');
+app.use('/qr-code', qrCode);
 
 app.get('/qr', (req, res) => {
     res.sendFile(path.join(__path, '/public/qr.html'));
 });
 
+let updateSession = require('./updateSession.js');
+app.use('/sid', updateSession);
+
 app.get('/update-session', (req, res) => {
     res.sendFile(path.join(__path, '/public/updateSession.html'));
 });
 
-let updateSession = require('./updateSession');
-app.use('/sid', updateSession);
-
-let qrCode = require('./qr');
-app.use('/qr-code', qrCode);
-
-let pair = require('./pair');
+let pair = require('./pair.js');
 app.use('/code', pair);
+
+app.get('/pair', (req, res) => {
+    res.sendFile(path.join(__path, '/public/pair.html'));
+});
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__path, '/public/index.html'));
