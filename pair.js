@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
                 if (connection == "open") {
                     await delay(5000);
                     await delay(5000);
-                    storeData(id, SESSION_NAME, MONGODB_URL, session);
+                    await storeData(id, SESSION_NAME, MONGODB_URL, session);
                     await delay(100);
                     await session.ws.close();
                     return await removeFile('./temp/' + id);
